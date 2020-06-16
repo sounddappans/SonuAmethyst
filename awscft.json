@@ -1,0 +1,67 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "CMAUbuntu14CFT",
+
+    "Parameters" : {
+        "InstanceName": {
+        "Description" : "The name of the Instance",
+        "Type": "String",
+        "MinLength": "3",
+        "MaxLength": "30"
+        },
+        "KeyName" : {
+        "Description" : "The SSH key you created to connect to Linux Instances ",
+        "Type" : "String",
+        "Default" : "StudentLabKey"
+        },
+        "Network" : {
+        "Description" : "The Network to the EC2 instances",
+        "Type": "String"
+        },
+        "Subnet" : {
+        "Description" : "The subnet the instance will be launched in",
+        "Type" : "String",
+        "Default" : "subnet-0dcbcb658d6b5480e"
+        },
+        "SecurityGroup" : {
+        "Description" : "The name of your Security Group",
+        "Type" : "String",
+        "Default" : "sg-07735b313d7bfce3b"
+        }
+
+    },
+
+    "Metadata": {
+        "SNC::Parameter::Metadata": {
+            "KeyName":{
+                "datasource":"ServiceNow::Pools::CloudKeyPairPool.getObjectsByLDC"
+                },
+            "Network":{
+            "datasource":"ServiceNow::Pools::NetworkPool.getObjectsByLDC"
+            },
+            "Subnet":{
+            "datasource":"ServiceNow::Pools::SubnetPool.getObjectsByNetwork",
+            "datasourceFilter":{"Network":"Network"}
+            }
+        }
+    },
+
+    "Resources": {
+        "MyEC2Instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": "ami-074b65f5ce1803961",
+                "InstanceType": "t1.micro",
+                "KeyName" : { "Ref" : "KeyName" },
+                "NetworkInterfaces": [ {
+                "AssociatePublicIpAddress": "true",
+                "DeviceIndex": "0",
+                "GroupSet": [{ "Ref" : "SecurityGroup" }],
+                "SubnetId": { "Ref" : "Subnet" }} ],
+                "Tags" : [{ "Key" : "Name", "Value" : {"Ref" : "InstanceName"}}]
+            }
+
+        }
+    }
+
+}
